@@ -154,18 +154,15 @@ def relatorio_copias_impressoes():
     if papercut is not None:
         st.subheader('Dados do arquivo:')
         
-        try:
-            pcut = pd.read_excel(papercut)
-        except:
-            st.error("Falha em carregar a Planilha do Papercut. Verifique se o arquivo foi salvo em uma planilha do excel válida.")
-
+        pcut = pd.read_excel(papercut)
 
         pcut.columns = [unidecode(col.lower().replace(' ','_')) for col in pcut.columns]
+        
         try:
             pcut['nome_conta_normalizado'] = pcut['nome_da_conta_compartilhada'].apply(lambda x: unidecode(x.lower()) if type(x) == str else '').apply(lambda x: substring(x))
+            st.dataframe(pcut)
         except:
             st.error("A coluna 'nome da conta compartilhada' não foi encontrada na planilha do papercut.")
-        st.dataframe(pcut)
 
     st.subheader("""**2.2. Upload: Planilha do Pedagógico**""")
     st.write("Carregue a planilha do pedagógico (Apenas 1 arquivo, correspondente a sua unidade).")
@@ -181,20 +178,16 @@ def relatorio_copias_impressoes():
     if pedagogico is not None:
         st.subheader('Dados do arquivo:')
 
-        try:
-            ped = pd.read_excel(pedagogico)
-        except:
-            st.error("Falha em carregar o arquivo do PED. Verifique se o arquivo selecionado está sem os padrões de formatação.")
+        ped = pd.read_excel(pedagogico)
 
         ped.columns = [unidecode(str(col).lower().strip().replace(' ','_')) for col in ped.columns]
         
         try:
             ped = ped[['unidade', 'nome_do_arquivo', 'impressoes_totais', 'data_da_solicitacao', 'data_da_utilizacao', 'nome']].copy()
+            ped['nome'] = ped['nome'].apply(lambda x: unidecode(str(x).lower()))
+            st.dataframe(ped)
         except:
             st.error("Verifique se as seguintes colunas estão presentes na planilha do PED: unidade, nome do arquivo, impressoes totais, data da solicitação, data da utilização e nome. Verifique também se você fez o upload da planilha contendo apenas a tabela, sem as formatações!")
-        ped['nome'] = ped['nome'].apply(lambda x: unidecode(str(x).lower()))
-        st.dataframe(ped)
-
 
     if (pedagogico is not None) and (papercut is not None):
         st.subheader("""**2.3. Download: Relatório**""")
